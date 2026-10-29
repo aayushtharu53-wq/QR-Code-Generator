@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced QR Code Studio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- QRCode Styling JS Library -->
+    <script type="text/javascript" src="https://unpkg.com/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(107, 114, 128, 0.8);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+        }
+        .dark .glass-panel {
+            background: rgba(17, 24, 39, 0.85);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 min-h-screen transition-colors duration-200 antialiased">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header Navigation -->
+    <header class="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl text-white shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-qrcode text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg sm:text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 dark:from-blue-400 dark:to-purple-400">
+                        QR Studio Pro
+                    </h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Advanced Vector QR Generator & Customizer</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2">
+                <!-- Preset Styles Dropdown -->
+                <div class="relative group">
+                    <button class="px-3 py-1.5 text-xs sm:text-sm font-semibold rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-1.5 border border-gray-200 dark:border-gray-700">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500">="preset-icon"</i>
+                        <span>Presets</span>
+                        <i class="fa-solid fa-chevron-down text-xs ml-1 opacity-60"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 py-2 hidden group-hover:block z-50">
+                        <button onclick="applyPreset('default')" class="w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-black dark:bg-white inline-block"></span> Classic Black
+                        </button>
+                        <button onclick="applyPreset('neon')" class="w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span> Cyber Neon
+                        </button>
+                        <button onclick="applyPreset('sunset')" class="w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-gradient-to-r from-orange-500 to-pink-500 inline-block"></span> Sunset Glow
+                        </button>
+                        <button onclick="applyPreset('corporate')" class="w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-600 inline-block"></span> Corporate Blue
+                        </button>
+                        <button onclick="applyPreset('emerald')" class="w-full text-left px-4 py-2 text-xs font-medium hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Emerald Modern
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dark/Light Theme Toggle -->
+                <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block text-amber-400"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT PANEL: Controls & Data Input (7 Cols) -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Content Type Selector Tabs -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-2 border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <div class="grid grid-cols-4 sm:grid-cols-5 gap-1 text-center" id="data-type-tabs">
+                        <button data-type="url" class="tab-btn active px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex flex-col sm:flex-row items-center justify-center gap-1.5 bg-blue-600 text-white shadow-sm">
+                            <i class="fa-solid fa-link text-base"></i>
+                            <span>URL</span>
+                        </button>
+                        <button data-type="wifi" class="tab-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex flex-col sm:flex-row items-center justify-center gap-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <i class="fa-solid fa-wifi text-base"></i>
+                            <span>WiFi</span>
+                        </button>
+                        <button data-type="vcard" class="tab-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex flex-col sm:flex-row items-center justify-center gap-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <i class="fa-solid fa-address-card text-base"></i>
+                            <span>vCard</span>
+                        </button>
+                        <button data-type="text" class="tab-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex flex-col sm:flex-row items-center justify-center gap-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
+                            <i class="fa-solid fa-align-left text-base"></i>
+                            <span>Text</span>
+                        </button>
+                        <button data-type="email" class="tab-btn px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex flex-col sm:flex-row items-center justify-center gap-1.5 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 col-span-4 sm:col-span-1">
+                            <i class="fa-solid fa-envelope text-base"></i>
+                            <span>Email</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Input Form Sections -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <h2 class="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square"></i> Content Information
+                    </h2>
+
+                    <!-- URL Input Form -->
+                    <div id="form-url" class="data-form space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Website URL</label>
+                            <div class="relative">
+                                <i class="fa-solid fa-globe absolute left-3.5 top-3 text-gray-400"></i>
+                                <input type="url" id="url-input" value="https://google.com" placeholder="https://example.com" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WiFi Input Form -->
+                    <div id="form-wifi" class="data-form hidden space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Network Name (SSID)</label>
+                                <input type="text" id="wifi-ssid" placeholder="MyWiFiNetwork" class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Password</label>
+                                <input type="password" id="wifi-password" placeholder="Password" class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1">
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300">Encryption</label>
+                                <select id="wifi-type" class="px-2.5 py-1.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg text-xs focus:ring-2 focus:ring-blue-500">
+                                    <option value="WPA">WPA / WPA2 / WPA3</option>
+                                    <option value="WEP">WEP</option>
+                                    <option value="nopass">None (Open)</option>
+                                </select>
+                            </div>
+                            <label class="inline-flex items-center gap-2 cursor-pointer text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                <input type="checkbox" id="wifi-hidden" class="rounded text-blue-600 focus:ring-blue-500">
+                                <span>Hidden SSID</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- vCard Contact Input Form -->
+                    <div id="form-vcard" class="data-form hidden space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">First Name</label>
+                                <input type="text" id="vcard-fn" placeholder="John" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Last Name</label>
+                                <input type="text" id="vcard-ln" placeholder="Doe" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Phone</label>
+                                <input type="tel" id="vcard-phone" placeholder="+1 234 567 890" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Email</label>
+                                <input type="email" id="vcard-email" placeholder="john@example.com" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Organization / Company</label>
+                                <input type="text" id="vcard-org" placeholder="Acme Inc." class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Job Title</label>
+                                <input type="text" id="vcard-title" placeholder="Software Engineer" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Text Input Form -->
+                    <div id="form-text" class="data-form hidden space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1.5 text-gray-700 dark:text-gray-300">Plain Text / Note</label>
+                            <textarea id="text-input" rows="3" placeholder="Enter any text..." class="w-full px-3.5 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">Hello World!</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Email Input Form -->
+                    <div id="form-email" class="data-form hidden space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Recipient Email</label>
+                            <input type="email" id="email-to" placeholder="contact@domain.com" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Subject</label>
+                            <input type="text" id="email-subject" placeholder="Inquiry" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1 text-gray-700 dark:text-gray-300">Message Body</label>
+                            <textarea id="email-body" rows="2" placeholder="Write message..." class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customization Accordions Panel -->
+                <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden divide-y divide-gray-200 dark:divide-gray-800">
+                    
+                    <!-- 1. Color Customization -->
+                    <div class="accordion-item">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                            <span class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-palette text-blue-500"></i> Color Palette & Gradients
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transform transition-transform duration-200"></i>
+                        </button>
+                        <div class="accordion-content p-5 space-y-5">
+                            <!-- Fill Mode Selector -->
+                            <div class="flex items-center gap-4">
+                                <label class="text-xs font-semibold text-gray-700 dark:text-gray-300">Foreground Type:</label>
+                                <div class="flex gap-2">
+                                    <label class="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                                        <input type="radio" name="fg-type" value="single" checked class="text-blue-600"> Solid
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 text-xs cursor-pointer">
+                                        <input type="radio" name="fg-type" value="gradient" class="text-blue-600"> Gradient
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Solid Colors -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1.5">Dots / Code Color</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="dots-color" value="#000000" class="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent">
+                                        <input type="text" id="dots-color-text" value="#000000" class="uppercase text-xs font-mono w-24 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1.5">Background Color</label>
+                                    <div class="flex items-center gap-2">
+                                        <input type="color" id="bg-color" value="#ffffff" class="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent">
+                                        <input type="text" id="bg-color-text" value="#ffffff" class="uppercase text-xs font-mono w-24 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gradient Options (Hidden by default) -->
+                            <div id="gradient-options" class="hidden p-4 rounded-xl bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 space-y-3">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold mb-1">Gradient Start Color</label>
+                                        <input type="color" id="grad-color-1" value="#3b82f6" class="w-10 h-10 rounded-xl cursor-pointer bg-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold mb-1">Gradient End Color</label>
+                                        <input type="color" id="grad-color-2" value="#8b5cf6" class="w-10 h-10 rounded-xl cursor-pointer bg-transparent">
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold mb-1">Gradient Type</label>
+                                        <select id="grad-type" class="w-full px-2 py-1.5 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-lg text-xs">
+                                            <option value="linear">Linear</option>
+                                            <option value="radial">Radial</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold mb-1">Rotation Angle (°)</label>
+                                        <input type="range" id="grad-rotation" min="0" max="360" value="45" class="w-full">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Eye & Pattern Styling -->
+                    <div class="accordion-item">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                            <span class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-shapes text-purple-500"></i> Module & Corner Eye Shapes
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transform transition-transform duration-200"></i>
+                        </button>
+                        <div class="accordion-content p-5 space-y-4 hidden">
+                            <!-- Code Patterns -->
+                            <div>
+                                <label class="block text-xs font-semibold mb-2">Body Dots Style</label>
+                                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="dots-style-selector">
+                                    <button data-style="square" class="p-2 border border-blue-500 bg-blue-50 dark:bg-blue-900/30 rounded-xl text-xs font-medium text-center">Square</button>
+                                    <button data-style="dots" class="p-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-center hover:border-blue-500">Dots</button>
+                                    <button data-style="rounded" class="p-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-center hover:border-blue-500">Rounded</button>
+                                    <button data-style="extra-rounded" class="p-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-center hover:border-blue-500">Smooth</button>
+                                    <button data-style="classy" class="p-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-center hover:border-blue-500">Classy</button>
+                                    <button data-style="classy-rounded" class="p-2 border border-gray-200 dark:border-gray-700 rounded-xl text-xs font-medium text-center hover:border-blue-500">Curved</button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                                <!-- Corner Square Style -->
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Corner Eye Frame Shape</label>
+                                    <select id="corners-square-style" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs">
+                                        <option value="square">Square</option>
+                                        <option value="extra-rounded">Extra Rounded</option>
+                                        <option value="dot">Circular / Dot</option>
+                                    </select>
+                                </div>
+                                <!-- Corner Dot Style -->
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Corner Eye Center Dot</label>
+                                    <select id="corners-dot-style" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs">
+                                        <option value="square">Square</option>
+                                        <option value="dot">Dot / Circle</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Eye Frame & Dot Color Pickers -->
+                            <div class="grid grid-cols-2 gap-4 pt-1">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Corner Frame Color</label>
+                                    <input type="color" id="corners-square-color" value="#000000" class="w-full h-8 rounded-lg cursor-pointer bg-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Corner Dot Color</label>
+                                    <input type="color" id="corners-dot-color" value="#000000" class="w-full h-8 rounded-lg cursor-pointer bg-transparent">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Logo Insertion -->
+                    <div class="accordion-item">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                            <span class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-image text-emerald-500"></i> Center Logo & Icon Overlay
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transform transition-transform duration-200"></i>
+                        </button>
+                        <div class="accordion-content p-5 space-y-4 hidden">
+                            <div>
+                                <label class="block text-xs font-semibold mb-2">Upload Custom Logo (PNG/SVG/JPG)</label>
+                                <div class="flex items-center gap-3">
+                                    <input type="file" id="logo-file" accept="image/*" class="hidden">
+                                    <button onclick="document.getElementById('logo-file').click()" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs font-semibold hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center gap-2">
+                                        <i class="fa-solid fa-upload"></i> Choose Image
+                                    </button>
+                                    <button id="remove-logo-btn" class="px-3 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-xl text-xs font-semibold hidden hover:bg-red-200 transition">
+                                        Remove Logo
+                                    </button>
+                                    <span id="logo-filename" class="text-xs text-gray-500 truncate max-w-[150px]">No file chosen</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Logo Size: <span id="logo-size-val">0.3</span></label>
+                                    <input type="range" id="logo-size" min="0.1" max="0.4" step="0.02" value="0.3" class="w-full">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Logo Margin: <span id="logo-margin-val">5</span>px</label>
+                                    <input type="range" id="logo-margin" min="0" max="20" step="1" value="5" class="w-full">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Frame & Banner Text -->
+                    <div class="accordion-item">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                            <span class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-border-top-left text-amber-500"></i> Call-To-Action Banner Frame
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transform transition-transform duration-200"></i>
+                        </button>
+                        <div class="accordion-content p-5 space-y-4 hidden">
+                            <div>
+                                <label class="block text-xs font-semibold mb-1">Call To Action Text</label>
+                                <input type="text" id="frame-text" placeholder="e.g. SCAN ME OR CONNECT" class="w-full px-3.5 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-sm uppercase">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Frame Banner Color</label>
+                                    <input type="color" id="frame-bg-color" value="#2563eb" class="w-full h-8 rounded-lg cursor-pointer bg-transparent">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Banner Text Color</label>
+                                    <input type="color" id="frame-text-color" value="#ffffff" class="w-full h-8 rounded-lg cursor-pointer bg-transparent">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. Advanced Configuration -->
+                    <div class="accordion-item">
+                        <button class="accordion-header w-full px-5 py-4 text-left font-bold text-sm flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                            <span class="flex items-center gap-2.5">
+                                <i class="fa-solid fa-sliders text-rose-500"></i> Error Correction & Size
+                            </span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400 transform transition-transform duration-200"></i>
+                        </button>
+                        <div class="accordion-content p-5 space-y-4 hidden">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Error Correction Level</label>
+                                    <select id="ecl-select" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs">
+                                        <option value="L">Low (7% recovery)</option>
+                                        <option value="M">Medium (15% recovery)</option>
+                                        <option value="Q">Quartile (25% recovery)</option>
+                                        <option value="H" selected>High (30% recovery - Recommended for Logo)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold mb-1">Quiet Zone Margin</label>
+                                    <input type="number" id="margin-input" min="0" max="40" value="10" class="w-full px-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl text-xs">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: Live Preview & Export Canvas (5 Cols) -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24 space-y-6">
+                    
+                    <!-- Preview Box Wrapper -->
+                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-xl text-center flex flex-col items-center justify-center min-h-[420px]">
+                        
+                        <div class="flex items-center justify-between w-full mb-4">
+                            <span class="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Live Preview
+                            </span>
+                            <span class="text-xs text-gray-400 font-mono" id="dimension-label">300 x 300 px</span>
+                        </div>
+
+                        <!-- Outer Framed Wrapper (for Banner Text feature) -->
+                        <div id="qr-frame-outer" class="p-4 rounded-2xl transition-all duration-300 flex flex-col items-center">
+                            <!-- Canvas Container for QRCodeStyling -->
+                            <div id="canvas-container" class="relative inline-block rounded-xl overflow-hidden shadow-sm"></div>
+                            
+                            <!-- Dynamic Frame Text Banner -->
+                            <div id="frame-banner" class="hidden mt-3 px-6 py-2 rounded-xl text-sm font-extrabold tracking-wider uppercase shadow-md w-full text-center">
+                                SCAN ME
+                            </div>
+                        </div>
+
+                        <!-- Live Status Message -->
+                        <p class="text-xs text-gray-400 mt-4 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check text-blue-500"></i> Vector-crisp code generated in real-time
+                        </p>
+                    </div>
+
+                    <!-- Export Actions Panel -->
+                    <div class="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-200 dark:border-gray-800 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Download & Share</h3>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="downloadQR('png')" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-blue-500/25 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> PNG Image
+                            </button>
+                            <button onclick="downloadQR('svg')" class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-purple-500/25 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-code"></i> SVG Vector
+                            </button>
+                        </div>
+
+                        <button onclick="copyQRToClipboard()" class="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-semibold text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-copy"></i> Copy Image to Clipboard
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Global variables & state initialization
+        let qrCode;
+        let currentType = 'url';
+        let uploadedLogoDataUrl = '';
+        let dotsStyle = 'square';
+
+        // Initial Configuration Object
+        const qrConfig = {
+            width: 280,
+            height: 280,
+            type: "canvas",
+            data: "https://google.com",
+            image: "",
+            dotsOptions: {
+                color: "#000000",
+                type: "square"
+            },
+            backgroundOptions: {
+                color: "#ffffff",
+            },
+            imageOptions: {
+                crossOrigin: "anonymous",
+                margin: 5,
+                imageSize: 0.3
+            },
+            cornersSquareOptions: {
+                color: "#000000",
+                type: "square"
+            },
+            cornersDotOptions: {
+                color: "#000000",
+                type: "square"
+            },
+            qrOptions: {
+                errorCorrectionLevel: "H"
+            }
+        };
+
+        // Initialize QR Generator on DOM load
+        document.addEventListener('DOMContentLoaded', () => {
+            qrCode = new QRCodeStyling(qrConfig);
+            const container = document.getElementById('canvas-container');
+            container.innerHTML = '';
+            qrCode.append(container);
+
+            setupEventListeners();
+            setupAccordion();
+            setupTheme();
+        });
+
+        // Toast Helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-2 px-4 py-3 rounded-xl text-xs font-semibold text-white shadow-xl transition-all transform translate-y-2 opacity-0 ${
+                type === 'success' ? 'bg-emerald-600' : 'bg-blue-600'
+            }`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Setup All UI Event Listeners
+        function setupEventListeners() {
+            // Data Type Tabs Toggle
+            document.querySelectorAll('#data-type-tabs .tab-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetBtn = e.currentTarget;
+                    document.querySelectorAll('#data-type-tabs .tab-btn').forEach(b => {
+                        b.classList.remove('bg-blue-600', 'text-white', 'shadow-sm');
+                        b.classList.add('text-gray-600', 'dark:text-gray-400');
+                    });
+                    targetBtn.classList.add('bg-blue-600', 'text-white', 'shadow-sm');
+                    targetBtn.classList.remove('text-gray-600', 'dark:text-gray-400');
+
+                    currentType = targetBtn.dataset.type;
+                    document.querySelectorAll('.data-form').forEach(f => f.classList.add('hidden'));
+                    document.getElementById(`form-${currentType}`).classList.remove('hidden');
+
+                    updateQRData();
+                });
+            });
+
+            // Text Inputs for Data Forms
+            const inputs = ['url-input', 'wifi-ssid', 'wifi-password', 'wifi-type', 'wifi-hidden',
+                           'vcard-fn', 'vcard-ln', 'vcard-phone', 'vcard-email', 'vcard-org', 'vcard-title',
+                           'text-input', 'email-to', 'email-subject', 'email-body'];
+            
+            inputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateQRData);
+                    el.addEventListener('change', updateQRData);
+                }
+            });
+
+            // Color Inputs
+            const dotsColor = document.getElementById('dots-color');
+            const dotsColorText = document.getElementById('dots-color-text');
+            const bgColor = document.getElementById('bg-color');
+            const bgColorText = document.getElementById('bg-color-text');
+
+            dotsColor.addEventListener('input', (e) => {
+                dotsColorText.value = e.target.value;
+                applyColorSettings();
+            });
+            dotsColorText.addEventListener('input', (e) => {
+                if(/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    dotsColor.value = e.target.value;
+                    applyColorSettings();
+                }
+            });
+
+            bgColor.addEventListener('input', (e) => {
+                bgColorText.value = e.target.value;
+                applyColorSettings();
+            });
+            bgColorText.addEventListener('input', (e) => {
+                if(/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    bgColor.value = e.target.value;
+                    applyColorSettings();
+                }
+            });
+
+            // Foreground Radio Type Toggle (Solid vs Gradient)
+            document.querySelectorAll('input[name="fg-type"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const gradOpts = document.getElementById('gradient-options');
+                    if (e.target.value === 'gradient') {
+                        gradOpts.classList.remove('hidden');
+                    } else {
+                        gradOpts.classList.add('hidden');
+                    }
+                    applyColorSettings();
+                });
+            });
+
+            // Gradient inputs
+            ['grad-color-1', 'grad-color-2', 'grad-type', 'grad-rotation'].forEach(id => {
+                document.getElementById(id).addEventListener('input', applyColorSettings);
+            });
+
+            // Module Style Selection Buttons
+            document.querySelectorAll('#dots-style-selector button').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('#dots-style-selector button').forEach(b => {
+                        b.classList.remove('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/30');
+                        b.classList.add('border-gray-200', 'dark:border-gray-700');
+                    });
+                    const target = e.currentTarget;
+                    target.classList.add('border-blue-500', 'bg-blue-50', 'dark:bg-blue-900/30');
+                    dotsStyle = target.dataset.style;
+                    
+                    qrConfig.dotsOptions.type = dotsStyle;
+                    qrCode.update(qrConfig);
+                });
+            });
+
+            // Corner Eyes Style
+            document.getElementById('corners-square-style').addEventListener('change', (e) => {
+                qrConfig.cornersSquareOptions.type = e.target.value;
+                qrCode.update(qrConfig);
+            });
+            document.getElementById('corners-dot-style').addEventListener('change', (e) => {
+                qrConfig.cornersDotOptions.type = e.target.value;
+                qrCode.update(qrConfig);
+            });
+
+            document.getElementById('corners-square-color').addEventListener('input', (e) => {
+                qrConfig.cornersSquareOptions.color = e.target.value;
+                qrCode.update(qrConfig);
+            });
+            document.getElementById('corners-dot-color').addEventListener('input', (e) => {
+                qrConfig.cornersDotOptions.color = e.target.value;
+                qrCode.update(qrConfig);
+            });
+
+            // Logo File Upload
+            document.getElementById('logo-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(evt) {
+                        uploadedLogoDataUrl = evt.target.result;
+                        qrConfig.image = uploadedLogoDataUrl;
+                        qrCode.update(qrConfig);
+                        document.getElementById('logo-filename').innerText = file.name;
+                        document.getElementById('remove-logo-btn').classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Remove Logo
+            document.getElementById('remove-logo-btn').addEventListener('click', () => {
+                uploadedLogoDataUrl = '';
+                qrConfig.image = '';
+                qrCode.update(qrConfig);
+                document.getElementById('logo-file').value = '';
+                document.getElementById('logo-filename').innerText = 'No file chosen';
+                document.getElementById('remove-logo-btn').classList.add('hidden');
+            });
+
+            // Logo Sliders
+            document.getElementById('logo-size').addEventListener('input', (e) => {
+                document.getElementById('logo-size-val').innerText = e.target.value;
+                qrConfig.imageOptions.imageSize = parseFloat(e.target.value);
+                qrCode.update(qrConfig);
+            });
+            document.getElementById('logo-margin').addEventListener('input', (e) => {
+                document.getElementById('logo-margin-val').innerText = e.target.value;
+                qrConfig.imageOptions.margin = parseInt(e.target.value);
+                qrCode.update(qrConfig);
+            });
+
+            // Frame / CTA Banner Text
+            document.getElementById('frame-text').addEventListener('input', updateFrameBanner);
+            document.getElementById('frame-bg-color').addEventListener('input', updateFrameBanner);
+            document.getElementById('frame-text-color').addEventListener('input', updateFrameBanner);
+
+            // Error Correction Level & Margin
+            document.getElementById('ecl-select').addEventListener('change', (e) => {
+                qrConfig.qrOptions.errorCorrectionLevel = e.target.value;
+                qrCode.update(qrConfig);
+            });
+            document.getElementById('margin-input').addEventListener('input', (e) => {
+                qrConfig.margin = parseInt(e.target.value) || 0;
+                qrCode.update(qrConfig);
+            });
+        }
+
+        // Construct Data String Based on Active Tab
+        function updateQRData() {
+            let compiledData = "";
+
+            if (currentType === 'url') {
+                compiledData = document.getElementById('url-input').value || "https://google.com";
+            } else if (currentType === 'wifi') {
+                const ssid = document.getElementById('wifi-ssid').value;
+                const pass = document.getElementById('wifi-password').value;
+                const type = document.getElementById('wifi-type').value;
+                const hidden = document.getElementById('wifi-hidden').checked;
+                compiledData = `WIFI:S:${ssid};T:${type};P:${pass};H:${hidden ? 'true' : 'false'};;`;
+            } else if (currentType === 'vcard') {
+                const fn = document.getElementById('vcard-fn').value;
+                const ln = document.getElementById('vcard-ln').value;
+                const phone = document.getElementById('vcard-phone').value;
+                const email = document.getElementById('vcard-email').value;
+                const org = document.getElementById('vcard-org').value;
+                const title = document.getElementById('vcard-title').value;
+
+                compiledData = `BEGIN:VCARD\nVERSION:3.0\nN:${ln};${fn};;;\nFN:${fn} ${ln}\nORG:${org}\nTITLE:${title}\nTEL:${phone}\nEMAIL:${email}\nEND:VCARD`;
+            } else if (currentType === 'text') {
+                compiledData = document.getElementById('text-input').value || "Hello";
+            } else if (currentType === 'email') {
+                const to = document.getElementById('email-to').value;
+                const sub = encodeURIComponent(document.getElementById('email-subject').value);
+                const body = encodeURIComponent(document.getElementById('email-body').value);
+                compiledData = `mailto:${to}?subject=${sub}&body=${body}`;
+            }
+
+            qrConfig.data = compiledData;
+            qrCode.update(qrConfig);
+        }
+
+        // Apply Color & Gradient Configurations
+        function applyColorSettings() {
+            const isGradient = document.querySelector('input[name="fg-type"]:checked').value === 'gradient';
+            
+            if (isGradient) {
+                const c1 = document.getElementById('grad-color-1').value;
+                const c2 = document.getElementById('grad-color-2').value;
+                const type = document.getElementById('grad-type').value;
+                const rotation = parseFloat(document.getElementById('grad-rotation').value) * (Math.PI / 180);
+
+                qrConfig.dotsOptions.gradient = {
+                    type: type,
+                    rotation: rotation,
+                    colorStops: [
+                        { offset: 0, color: c1 },
+                        { offset: 1, color: c2 }
+                    ]
+                };
+                delete qrConfig.dotsOptions.color;
+            } else {
+                delete qrConfig.dotsOptions.gradient;
+                qrConfig.dotsOptions.color = document.getElementById('dots-color').value;
+            }
+
+            qrConfig.backgroundOptions.color = document.getElementById('bg-color').value;
+            qrCode.update(qrConfig);
+        }
+
+        // Banner / Frame CTA Updater
+        function updateFrameBanner() {
+            const text = document.getElementById('frame-text').value.trim();
+            const bgColor = document.getElementById('frame-bg-color').value;
+            const textColor = document.getElementById('frame-text-color').value;
+
+            const banner = document.getElementById('frame-banner');
+            const outer = document.getElementById('qr-frame-outer');
+
+            if (text.length > 0) {
+                banner.innerText = text;
+                banner.style.backgroundColor = bgColor;
+                banner.style.color = textColor;
+                banner.classList.remove('hidden');
+                outer.style.backgroundColor = bgColor + '15'; // 10% opacity tint
+                outer.style.border = `2px solid ${bgColor}`;
+            } else {
+                banner.classList.add('hidden');
+                outer.style.backgroundColor = 'transparent';
+                outer.style.border = 'none';
+            }
+        }
+
+        // Style Presets Generator
+        function applyPreset(preset) {
+            const presets = {
+                default: {
+                    dotsColor: '#000000',
+                    bgColor: '#ffffff',
+                    dotsStyle: 'square',
+                    cornerSquare: 'square',
+                    cornerDot: 'square',
+                    fgType: 'single'
+                },
+                neon: {
+                    dotsColor: '#00f3ff',
+                    bgColor: '#090d16',
+                    gradC1: '#00f3ff',
+                    gradC2: '#b000ff',
+                    dotsStyle: 'dots',
+                    cornerSquare: 'extra-rounded',
+                    cornerDot: 'dot',
+                    fgType: 'gradient'
+                },
+                sunset: {
+                    dotsColor: '#ff512f',
+                    bgColor: '#ffffff',
+                    gradC1: '#ff512f',
+                    gradC2: '#dd2476',
+                    dotsStyle: 'rounded',
+                    cornerSquare: 'extra-rounded',
+                    cornerDot: 'dot',
+                    fgType: 'gradient'
+                },
+                corporate: {
+                    dotsColor: '#1e3a8a',
+                    bgColor: '#f8fafc',
+                    dotsStyle: 'classy',
+                    cornerSquare: 'square',
+                    cornerDot: 'square',
+                    fgType: 'single'
+                },
+                emerald: {
+                    dotsColor: '#059669',
+                    bgColor: '#ffffff',
+                    dotsStyle: 'extra-rounded',
+                    cornerSquare: 'extra-rounded',
+                    cornerDot: 'dot',
+                    fgType: 'single'
+                }
+            };
+
+            const p = presets[preset];
+            if (!p) return;
+
+            // Apply solid/gradient toggle
+            const fgRadio = document.querySelector(`input[name="fg-type"][value="${p.fgType}"]`);
+            if (fgRadio) {
+                fgRadio.checked = true;
+                fgRadio.dispatchEvent(new Event('change'));
+            }
+
+            document.getElementById('dots-color').value = p.dotsColor;
+            document.getElementById('dots-color-text').value = p.dotsColor;
+            document.getElementById('bg-color').value = p.bgColor;
+            document.getElementById('bg-color-text').value = p.bgColor;
+
+            if (p.gradC1) document.getElementById('grad-color-1').value = p.gradC1;
+            if (p.gradC2) document.getElementById('grad-color-2').value = p.gradC2;
+
+            document.getElementById('corners-square-style').value = p.cornerSquare;
+            document.getElementById('corners-dot-style').value = p.cornerDot;
+            document.getElementById('corners-square-color').value = p.dotsColor;
+            document.getElementById('corners-dot-color').value = p.dotsColor;
+
+            // Trigger click on style button
+            const styleBtn = document.querySelector(`#dots-style-selector button[data-style="${p.dotsStyle}"]`);
+            if (styleBtn) styleBtn.click();
+
+            applyColorSettings();
+            showToast(`Applied '${preset.toUpperCase()}' style preset`, 'success');
+        }
+
+        // Accordion Animation Setup
+        function setupAccordion() {
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    const content = header.nextElementSibling;
+                    const icon = header.querySelector('.fa-chevron-down');
+
+                    const isHidden = content.classList.contains('hidden');
+                    
+                    // Close all
+                    document.querySelectorAll('.accordion-content').forEach(c => c.classList.add('hidden'));
+                    document.querySelectorAll('.accordion-header .fa-chevron-down').forEach(i => i.classList.remove('rotate-180'));
+
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        icon.classList.add('rotate-180');
+                    }
+                });
+            });
+        }
+
+        // Theme Toggle Setup
+        function setupTheme() {
+            const toggle = document.getElementById('theme-toggle');
+            toggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+            });
+        }
+
+        // Export Functions
+        function downloadQR(extension) {
+            qrCode.download({
+                name: "qr-code-" + Date.now(),
+                extension: extension
+            });
+            showToast(`Downloading high-res ${extension.toUpperCase()} file...`, 'success');
+        }
+
+        // Copy QR Canvas to Clipboard
+        async function copyQRToClipboard() {
+            try {
+                const canvas = document.querySelector('#canvas-container canvas');
+                if (!canvas) {
+                    showToast('Canvas not ready for copying', 'error');
+                    return;
+                }
+                
+                canvas.toBlob(async (blob) => {
+                    try {
+                        await navigator.clipboard.write([
+                            new ClipboardItem({ 'image/png': blob })
+                        ]);
+                        showToast('QR Code copied to clipboard!', 'success');
+                    } catch (err) {
+                        showToast('Failed to copy directly. Try downloading.', 'error');
+                    }
+                });
+            } catch (err) {
+                showToast('Clipboard API not supported on this browser.', 'error');
+            }
+        }
+    </script>
+</body>
+</html>
